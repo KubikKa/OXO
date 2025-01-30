@@ -78,7 +78,7 @@ class NoughtsAndCrossesApp(wx.Frame):
             self.input_player2_name.Enable()  
     
     
-    def start(self, events):
+    def start(self, event):
         mode = self.mode_choice.GetStringSelection()
         player1 = self.input_player1_name.GetValue().strip()
         player2 = self.input_player2_name.GetValue().strip()
@@ -86,6 +86,14 @@ class NoughtsAndCrossesApp(wx.Frame):
 
         if not player1 or (not player2 and mode == "Play with Friend"):
             self.message.SetLabel("Please enter names for both players!")
+            return
+        
+        if self.mode_choice.GetSelection() == wx.NOT_FOUND:
+            self.message.SetLabel("Please select a game mode!")
+            return
+        
+        if self.set_out_choice.GetSelection() == wx.NOT_FOUND:
+            self.message.SetLabel("Please choose who goes first!")
             return
 
         self.game.set_players(player1, player2)
@@ -106,7 +114,7 @@ class NoughtsAndCrossesApp(wx.Frame):
         button = self.FindWindowById(button_id)
         index = self.buttons.index(button)
 
-        if not self.game.is_square_empty(index):
+        if not self.game.empty_square(index):
             return
 
         symbol = self.game.current_player()
@@ -121,16 +129,19 @@ class NoughtsAndCrossesApp(wx.Frame):
             self.message.SetLabel("It's a draw!")
         else:
             self.game.switch_player()
-            if self.game.current_player() == "⭕" and self.game.player2 == "Computer":
+            if self.game.current_player() == "O" and self.game.player2 == "Computer":
                 self.computer_move()
 
 
     def computer_move(self):
-        empty_squares = [i for i, square in enumerate(self.game.board) if square is None]
+        empty_squares = []
+        for i in range(9):
+            if self.game.board[i] is None:
+                empty_squares.append(i)
         if empty_squares:
             move = random.choice(empty_squares)
-            self.buttons[move].SetLabel("⭕")
-            self.game.make_move(move, "⭕")
+            self.buttons[move].SetLabel("O")
+            self.game.make_move(move, "O")
 
             winner = self.game.check_winner()
             if winner:
@@ -146,8 +157,9 @@ class NoughtsAndCrossesApp(wx.Frame):
         self.game.reset()
         for button in self.buttons:
             button.SetLabel("")
-            button.Enable(False)
+            button.Disable()
         self.message.SetLabel("Welcome to Noughts and Crosses!")
+        # Żaden element nie jest wybrany, czyli pola dla imion muszą być puste, a mode gry i wybór pierwszego gracza muszą być wyłączone/odznaczone
         self.input_player1_name.SetValue("")
         self.input_player2_name.SetValue("")
         self.mode_choice.SetSelection(-1)
@@ -168,7 +180,7 @@ class NoughtsAndCrossesApp(wx.Frame):
 
     def disable_all_buttons(self):
         for button in self.buttons:
-            button.Enable(False)
+            button.Disable()
 
 
 
@@ -179,7 +191,7 @@ class NoughtsAndCrossesLogic:
 
     def reset(self):
         self.board = [None] * 9
-        self.current_symbol = "✖️"
+        self.current_symbol = "X"
         self.player1 = None
         self.player2 = None
 
@@ -191,17 +203,17 @@ class NoughtsAndCrossesLogic:
 
     def set_first_player(self, first_player):
         if first_player == "Second player":
-            self.current_symbol = "⭕"
+            self.current_symbol = "O"
         else:
-            self.current_symbol = "✖️"
+            self.current_symbol = "X"
 
 
-    def is_square_empty(self, index):
+    def empty_square(self, index):
         return self.board[index] is None
 
 
     def make_move(self, index, symbol):
-        if self.is_square_empty(index):
+        if self.empty_square(index):
             self.board[index] = symbol
 
 
@@ -210,18 +222,22 @@ class NoughtsAndCrossesLogic:
 
 
     def switch_player(self):
-        self.current_symbol = "⭕" if self.current_symbol == "✖️" else "✖️"
+        self.current_symbol = "O" if self.current_symbol == "X" else "X"
 
 
     def check_winner(self):
         winning_combinations = [
-            [0, 1, 2], [3, 4, 5], [6, 7, 8],  # rows
-            [0, 3, 6], [1, 4, 7], [2, 5, 8],  # columns
-            [0, 4, 8], [2, 4, 6]             # diagonals
+            [0, 1, 2], [3, 4, 5], [6, 7, 8],  # wiersze
+            [0, 3, 6], [1, 4, 7], [2, 5, 8],  # kolumny
+            [0, 4, 8], [2, 4, 6]              # przekątne
         ]
-        for combo in winning_combinations:
-            if self.board[combo[0]] == self.board[combo[1]] == self.board[combo[2]] and self.board[combo[0]] is not None:
-                return self.player1 if self.board[combo[0]] == "✖️" else (self.player2 if self.player2 else "Computer")
+        for combination in winning_combinations:
+            if self.board[combination[0]] == self.board[combination[1]] == self.board[combination[2]] and self.board[combination[0]] is not None:
+                winner_symbol = self.board[combination[0]]
+                if winner_symbol == "X":
+                    return self.player1
+                elif winner_symbol == "O":
+                    return self.player2
         return None
 
 
