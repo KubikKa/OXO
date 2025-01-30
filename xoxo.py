@@ -5,7 +5,7 @@ import random
 # Okienko aplikacji
 class NoughtsAndCrossesApp(wx.Frame):
     def __init__(self, parent, title):
-        super().__init__(None, title = "Noughts and Crosses ⭕✖️⭕", size=(600, 700))
+        super().__init__(None, title = "Noughts and Crosses ⭕✖️⭕", size=(700, 700))
         panel = wx.Panel(self)
         sizer = wx.BoxSizer(wx.VERTICAL)
         panel.SetSizer(sizer)
@@ -183,7 +183,7 @@ class NoughtsAndCrossesApp(wx.Frame):
 
     # Impuls - reakcja i odpowiedź
     def BindEvents(self):
-        self.start_button.Bind(wx.EVT_BUTTON, self.start)  # start button reaguje (bind) na kliknięcie myszką (wx.EVT_BUTTON) i wywołuje funkcję start
+        self.start_button.Bind(wx.EVT_BUTTON, self.start)
         for button in self.buttons:
             button.Bind(wx.EVT_BUTTON, self.grid_click)
         self.reset_button.Bind(wx.EVT_BUTTON, self.reset_click)
