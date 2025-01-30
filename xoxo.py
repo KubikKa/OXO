@@ -14,7 +14,7 @@ class NoughtsAndCrossesApp(wx.Frame):
 
         self.CreateUI_Items(panel, sizer, buttons)
         self.game = NoughtsAndCrossesLogic()
-        self.BindEvents(self.buttons)
+        self.BindEvents()
         self.reset_game()
         
         self.mode_choice.Bind(wx.EVT_CHOICE, self.mode_name_change)
@@ -119,14 +119,21 @@ class NoughtsAndCrossesApp(wx.Frame):
 
         symbol = self.game.current_player()
         button.SetLabel(symbol)
-        self.game.make_move(index, symbol)
+        button.SetFont(wx.Font(20, wx.FONTFAMILY_SWISS, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD))
 
+        if symbol == "X":
+            button.SetBackgroundColour(wx.Colour(216, 191, 216)) 
+        else:
+            button.SetBackgroundColour(wx.Colour(255, 192, 203))
+
+        self.game.make_move(index, symbol)
         winner = self.game.check_winner()
         if winner:
             self.message.SetLabel("%s wins!" %winner)
             self.disable_all_buttons()
         elif self.game.is_draw():
             self.message.SetLabel("It's a draw!")
+            self.disable_all_buttons()
         else:
             self.game.switch_player()
             if self.game.current_player() == "O" and self.game.player2 == "Computer":
@@ -141,6 +148,8 @@ class NoughtsAndCrossesApp(wx.Frame):
         if empty_squares:
             move = random.choice(empty_squares)
             self.buttons[move].SetLabel("O")
+            self.buttons[move].SetBackgroundColour(wx.Colour(255, 192, 203))
+            self.buttons[move].SetFont(wx.Font(20, wx.FONTFAMILY_SWISS, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD))
             self.game.make_move(move, "O")
 
             winner = self.game.check_winner()
@@ -149,6 +158,7 @@ class NoughtsAndCrossesApp(wx.Frame):
                 self.disable_all_buttons()
             elif self.game.is_draw():
                 self.message.SetLabel("It's a draw!")
+                self.disable_all_buttons()
             else:
                 self.game.switch_player()
 
@@ -157,6 +167,7 @@ class NoughtsAndCrossesApp(wx.Frame):
         self.game.reset()
         for button in self.buttons:
             button.SetLabel("")
+            button.SetBackgroundColour(wx.Colour(255, 255, 255))
             button.Disable()
         self.message.SetLabel("Welcome to Noughts and Crosses!")
         # Żaden element nie jest wybrany, czyli pola dla imion muszą być puste, a mode gry i wybór pierwszego gracza muszą być wyłączone/odznaczone
@@ -171,9 +182,9 @@ class NoughtsAndCrossesApp(wx.Frame):
 
 
     # Impuls - reakcja i odpowiedź
-    def BindEvents(self, buttons):
+    def BindEvents(self):
         self.start_button.Bind(wx.EVT_BUTTON, self.start)  # start button reaguje (bind) na kliknięcie myszką (wx.EVT_BUTTON) i wywołuje funkcję start
-        for button in buttons:
+        for button in self.buttons:
             button.Bind(wx.EVT_BUTTON, self.grid_click)
         self.reset_button.Bind(wx.EVT_BUTTON, self.reset_click)
 
@@ -181,7 +192,6 @@ class NoughtsAndCrossesApp(wx.Frame):
     def disable_all_buttons(self):
         for button in self.buttons:
             button.Disable()
-
 
 
 class NoughtsAndCrossesLogic:
@@ -241,8 +251,12 @@ class NoughtsAndCrossesLogic:
         return None
 
 
+    # Sprawdzamy, czy wszystkie pola na planszy są już zajęte
     def is_draw(self):
-        return all(square is not None for square in self.board)
+        for square in self.board:
+            if square is None:
+                return False  
+        return True
 
 
 if __name__ == "__main__":
