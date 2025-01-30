@@ -5,7 +5,7 @@ import random
 # Okienko aplikacji
 class NoughtsAndCrossesApp(wx.Frame):
     def __init__(self, parent, title):
-        super().__init__(None, title = "Noughts and Crosses", size=(600, 700))
+        super().__init__(None, title = "Noughts and Crosses ⭕✖️⭕", size=(600, 700))
         panel = wx.Panel(self)
         sizer = wx.BoxSizer(wx.VERTICAL)
         panel.SetSizer(sizer)
@@ -247,6 +247,6 @@ class NoughtsAndCrossesLogic:
 
 if __name__ == "__main__":
     app = wx.App()
-    frame = NoughtsAndCrossesApp(None, title = "Noughts and Crosses")
+    frame = NoughtsAndCrossesApp(None, title = "Noughts and Crosses ⭕✖️⭕")
     frame.Show()
-    app.MainLoop()
+    app.MainLoop()    
