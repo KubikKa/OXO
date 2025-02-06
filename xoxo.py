@@ -22,7 +22,9 @@ class NoughtsAndCrossesApp(wx.Frame):
     # Etykiety i pola tekstowe do wprowadzania danych
     def CreateUI_Items(self, panel, sizer):
         # Etykieta powitalna
-        self.message = wx.StaticText(panel, label="Welcome to Noughts and Crosses!")
+        self.message = wx.StaticText(panel, label="Welcome to Noughts and Crosses!", style=wx.ALIGN_CENTER)
+        self.message.SetMinSize((600, -1))
+        self.message.Wrap(600)
         sizer.Add(self.message, 0, flag=wx.ALIGN_CENTER_HORIZONTAL | wx.ALL, border=10)
         self.message.SetFont(wx.Font(14, wx.FONTFAMILY_SWISS, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD))
         
